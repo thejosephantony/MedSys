@@ -1,19 +1,32 @@
 # 🩺 MedSys - Medical Management System
 
 <p align="center">
+  <img 
+    src="https://capsule-render.vercel.app/api?type=waving&color=0:0D47A1,100:00BFA6&height=180&section=header&text=MedSys&fontSize=45&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Medical%20Management%20System&descAlignY=55&descSize=18" 
+    alt="MedSys Banner"
+  />
+</p>
+
+<p align="center">
   <strong>A medical management system built with C# and ASP.NET Core.</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/status-under%20development-yellow" />
-  <img src="https://img.shields.io/badge/C%23-ASP.NET%20Core-purple" />
-  <img src="https://img.shields.io/badge/.NET-Backend-blue" />
+  <img src="https://img.shields.io/badge/Status-Under%20Development-yellow?style=for-the-badge" alt="Status" />
+  <img src="https://img.shields.io/badge/C%23-ASP.NET%20Core-512BD4?style=for-the-badge&logo=csharp&logoColor=white" alt="C#" />
+  <img src="https://img.shields.io/badge/.NET-Backend-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET" />
+  <img src="https://img.shields.io/badge/API-REST-blue?style=for-the-badge" alt="REST API" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Database-SQL%20Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" alt="SQL Server" />
+  <img src="https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
+  <img src="https://img.shields.io/badge/Project-Academic%20%2F%20Personal-00BFA6?style=for-the-badge" alt="Project" />
 </p>
 
 ---
 
 ## 📌 About the Project
-
 **MedSys** is a medical management system developed with **C#** and **ASP.NET Core**.
 
 The goal of this project is to provide a simple, organized, and scalable system for managing healthcare-related information, such as patients, doctors, appointments, and medical records.
