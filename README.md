@@ -1,42 +1,65 @@
-# MedSys - Medical Management System
+# 🩺 MedSys - Medical Management System
 
-MedSys is a medical management system built with **C#** and **ASP.NET Core**.
+<p align="center">
+  <strong>A medical management system built with C# and ASP.NET Core.</strong>
+</p>
 
-> Status: Currently under development.
+<p align="center">
+  <img src="https://img.shields.io/badge/status-under%20development-yellow" />
+  <img src="https://img.shields.io/badge/C%23-ASP.NET%20Core-purple" />
+  <img src="https://img.shields.io/badge/.NET-Backend-blue" />
+</p>
 
-## About the Project
+---
 
-MedSys is a project focused on managing healthcare-related information in a simple and organized way.
+## 📌 About the Project
 
-The main goal of the system is to help manage:
+**MedSys** is a medical management system developed with **C#** and **ASP.NET Core**.
 
-- Patients
-- Doctors
-- Appointments
-- Medical records
-- Users and access control
+The goal of this project is to provide a simple, organized, and scalable system for managing healthcare-related information, such as patients, doctors, appointments, and medical records.
 
-This project is currently being developed as a personal/academic software project using modern backend development practices with C#.
+> 🚧 **Status:** Currently under development.
 
-## Technologies
+---
 
-The project is being developed with:
+## 🎯 Main Objective
 
-- C#
-- ASP.NET Core
-- .NET
-- Entity Framework Core
-- SQL Server / Database integration
-- Swagger / OpenAPI
+The main objective of **MedSys** is to help organize and manage medical clinic operations through a backend system/API.
 
-## Project Structure
+The system is planned to support:
+
+- 👤 Patient management
+- 🧑‍⚕️ Doctor management
+- 📅 Appointment scheduling
+- 📋 Medical records
+- 🔐 User authentication and access control
+- 🌐 API endpoints for system operations
+
+---
+
+## 🛠️ Technologies Used
+
+This project is being developed using:
+
+| Technology | Purpose |
+|---|---|
+| **C#** | Main programming language |
+| **ASP.NET Core** | Backend framework |
+| **.NET** | Application platform |
+| **Entity Framework Core** | Database access and ORM |
+| **SQL Server** | Database management |
+| **Swagger / OpenAPI** | API documentation and testing |
+
+---
+
+## 📁 Project Structure
 
 ```text
 MedSys/
-├── Controllers/
-├── Models/
-├── Services/
-├── Data/
-├── Program.cs
-├── appsettings.json
-└── MedSys.csproj
+├── Controllers/        # API controllers
+├── Models/             # Domain models/entities
+├── Services/           # Business logic
+├── Data/               # Database context and configuration
+├── Program.cs          # Application entry point
+├── appsettings.json    # Application settings
+└── MedSys.csproj       # Project configuration
