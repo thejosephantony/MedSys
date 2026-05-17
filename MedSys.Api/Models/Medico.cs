@@ -37,7 +37,7 @@ public class Medico
 
     public int EspecialidadeId { get; set; }
 
-    public Especialidade Especialidade { get; set; } = null!;
+    public Especialidade? Especialidade { get; set; }
 
     public List<Consulta> Consultas { get; set; } = new();
 

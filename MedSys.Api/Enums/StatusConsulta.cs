@@ -3,7 +3,7 @@ namespace MedSys.Api.Enums;
 public enum StatusConsulta
 {
     Agendada,
-    Concluida,
+    Realizada,
     Cancelada,
-    EmAndamento
+    NaoCompareceu
 }

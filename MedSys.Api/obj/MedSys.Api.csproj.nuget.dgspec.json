@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Joseph\\Downloads\\MedSys\\MedSys.Api\\MedSys.Api.csproj": {}
+    "C:\\Users\\Joseph\\downloads\\MedSys\\MedSys.Api\\MedSys.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Joseph\\Downloads\\MedSys\\MedSys.Api\\MedSys.Api.csproj": {
+    "C:\\Users\\Joseph\\downloads\\MedSys\\MedSys.Api\\MedSys.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Joseph\\Downloads\\MedSys\\MedSys.Api\\MedSys.Api.csproj",
+        "projectUniqueName": "C:\\Users\\Joseph\\downloads\\MedSys\\MedSys.Api\\MedSys.Api.csproj",
         "projectName": "MedSys.Api",
-        "projectPath": "C:\\Users\\Joseph\\Downloads\\MedSys\\MedSys.Api\\MedSys.Api.csproj",
+        "projectPath": "C:\\Users\\Joseph\\downloads\\MedSys\\MedSys.Api\\MedSys.Api.csproj",
         "packagesPath": "C:\\Users\\Joseph\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Joseph\\Downloads\\MedSys\\MedSys.Api\\obj\\",
+        "outputPath": "C:\\Users\\Joseph\\downloads\\MedSys\\MedSys.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Joseph\\AppData\\Roaming\\NuGet\\NuGet.Config"
