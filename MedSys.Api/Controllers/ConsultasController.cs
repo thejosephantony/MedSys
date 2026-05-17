@@ -1,4 +1,5 @@
 using MedSys.Api.Data;
+using MedSys.Api.DTOs;
 using MedSys.Api.Enums;
 using MedSys.Api.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -18,106 +19,195 @@ public class ConsultasController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Consulta>>> Listar()
+    public async Task<ActionResult<List<ConsultaResponseDto>>> Listar()
     {
-        return await _context.Consultas
-            .Include(c => c.Medico!)
-                .ThenInclude(m => m.Especialidade)
-            .Include(c => c.Paciente)
+        var consultas = await _context.Consultas
+            .OrderBy(c => c.DataHora)
+            .Select(c => new ConsultaResponseDto
+            {
+                Id = c.Id,
+
+                MedicoId = c.MedicoId,
+                NomeMedico = c.Medico != null
+                    ? c.Medico.PrimeiroNome + " " + c.Medico.Sobrenome
+                    : string.Empty,
+
+                Especialidade = c.Medico != null && c.Medico.Especialidade != null
+                    ? c.Medico.Especialidade.Nome
+                    : string.Empty,
+
+                PacienteId = c.PacienteId,
+                NomePaciente = c.Paciente != null
+                    ? c.Paciente.PrimeiroNome + " " + c.Paciente.Sobrenome
+                    : string.Empty,
+
+                DataHora = c.DataHora,
+                ModalidadeAtendimento = c.ModalidadeAtendimento,
+                Descricao = c.Descricao,
+                Status = c.Status,
+                Valor = c.Valor,
+                FormaPagamento = c.FormaPagamento,
+                LocalAtendimento = c.LocalAtendimento,
+                DataCriacao = c.DataCriacao,
+                DataAtualizacao = c.DataAtualizacao
+            })
             .ToListAsync();
+
+        return Ok(consultas);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Consulta>> BuscarPorId(int id)
+    public async Task<ActionResult<ConsultaResponseDto>> BuscarPorId(int id)
     {
         var consulta = await _context.Consultas
-            .Include(c => c.Medico!)
-                .ThenInclude(m => m.Especialidade)
-            .Include(c => c.Paciente)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .Where(c => c.Id == id)
+            .Select(c => new ConsultaResponseDto
+            {
+                Id = c.Id,
+
+                MedicoId = c.MedicoId,
+                NomeMedico = c.Medico != null
+                    ? c.Medico.PrimeiroNome + " " + c.Medico.Sobrenome
+                    : string.Empty,
+
+                Especialidade = c.Medico != null && c.Medico.Especialidade != null
+                    ? c.Medico.Especialidade.Nome
+                    : string.Empty,
+
+                PacienteId = c.PacienteId,
+                NomePaciente = c.Paciente != null
+                    ? c.Paciente.PrimeiroNome + " " + c.Paciente.Sobrenome
+                    : string.Empty,
+
+                DataHora = c.DataHora,
+                ModalidadeAtendimento = c.ModalidadeAtendimento,
+                Descricao = c.Descricao,
+                Status = c.Status,
+                Valor = c.Valor,
+                FormaPagamento = c.FormaPagamento,
+                LocalAtendimento = c.LocalAtendimento,
+                DataCriacao = c.DataCriacao,
+                DataAtualizacao = c.DataAtualizacao
+            })
+            .FirstOrDefaultAsync();
 
         if (consulta == null)
             return NotFound("Consulta não encontrada.");
 
-        return consulta;
+        return Ok(consulta);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Consulta>> Criar(Consulta consulta)
+    public async Task<ActionResult<ConsultaResponseDto>> Criar(ConsultaCreateDto dto)
     {
-        consulta.DataHora = DateTime.SpecifyKind(consulta.DataHora, DateTimeKind.Utc);
-        var medicoExiste = await _context.Medicos
-            .AnyAsync(m => m.Id == consulta.MedicoId);
+        var dataHoraUtc = GarantirUtc(dto.DataHora);
 
-        if (!medicoExiste)
+        var medico = await _context.Medicos
+            .Include(m => m.Especialidade)
+            .FirstOrDefaultAsync(m => m.Id == dto.MedicoId);
+
+        if (medico == null)
             return BadRequest("Médico informado não existe.");
 
-        var pacienteExiste = await _context.Pacientes
-            .AnyAsync(p => p.Id == consulta.PacienteId);
+        var paciente = await _context.Pacientes
+            .FirstOrDefaultAsync(p => p.Id == dto.PacienteId);
 
-        if (!pacienteExiste)
+        if (paciente == null)
             return BadRequest("Paciente informado não existe.");
 
-        if (consulta.DataHora < DateTime.UtcNow)
+        if (dataHoraUtc < DateTime.UtcNow)
             return BadRequest("Não é possível agendar consulta no passado.");
 
         var medicoOcupado = await _context.Consultas.AnyAsync(c =>
-            c.MedicoId == consulta.MedicoId &&
-            c.DataHora == consulta.DataHora &&
+            c.MedicoId == dto.MedicoId &&
+            c.DataHora == dataHoraUtc &&
             c.Status == StatusConsulta.Agendada);
 
         if (medicoOcupado)
             return BadRequest("O médico já possui uma consulta agendada nesse horário.");
 
         var pacienteOcupado = await _context.Consultas.AnyAsync(c =>
-            c.PacienteId == consulta.PacienteId &&
-            c.DataHora == consulta.DataHora &&
+            c.PacienteId == dto.PacienteId &&
+            c.DataHora == dataHoraUtc &&
             c.Status == StatusConsulta.Agendada);
 
         if (pacienteOcupado)
             return BadRequest("O paciente já possui uma consulta agendada nesse horário.");
 
-        consulta.Status = StatusConsulta.Agendada;
-        consulta.DataCriacao = DateTime.UtcNow;
-        consulta.DataAtualizacao = DateTime.UtcNow;
+        var consulta = new Consulta
+        {
+            MedicoId = dto.MedicoId,
+            PacienteId = dto.PacienteId,
+            DataHora = dataHoraUtc,
+            ModalidadeAtendimento = dto.ModalidadeAtendimento,
+            Descricao = dto.Descricao ?? string.Empty,
+            Observacoes = dto.Observacoes ?? string.Empty,
+            FormaPagamento = dto.FormaPagamento ?? string.Empty,
+            LocalAtendimento = dto.LocalAtendimento ?? string.Empty,
+            Status = StatusConsulta.Agendada,
+            DataCriacao = DateTime.UtcNow,
+            DataAtualizacao = DateTime.UtcNow
+        };
 
         _context.Consultas.Add(consulta);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(BuscarPorId), new { id = consulta.Id }, consulta);
+        var responseDto = new ConsultaResponseDto
+        {
+            Id = consulta.Id,
+
+            MedicoId = consulta.MedicoId,
+            NomeMedico = medico.PrimeiroNome + " " + medico.Sobrenome,
+            Especialidade = medico.Especialidade != null
+                ? medico.Especialidade.Nome
+                : string.Empty,
+
+            PacienteId = consulta.PacienteId,
+            NomePaciente = paciente.PrimeiroNome + " " + paciente.Sobrenome,
+
+            DataHora = consulta.DataHora,
+            ModalidadeAtendimento = consulta.ModalidadeAtendimento,
+            Descricao = consulta.Descricao,
+            Status = consulta.Status,
+            Valor = consulta.Valor,
+            FormaPagamento = consulta.FormaPagamento,
+            LocalAtendimento = consulta.LocalAtendimento,
+            DataCriacao = consulta.DataCriacao,
+            DataAtualizacao = consulta.DataAtualizacao
+        };
+
+        return CreatedAtAction(nameof(BuscarPorId), new { id = consulta.Id }, responseDto);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Atualizar(int id, Consulta consultaAtualizada)
+    public async Task<IActionResult> Atualizar(int id, ConsultaUpdateDto dto)
     {
-        consultaAtualizada.DataHora = DateTime.SpecifyKind(
-        consultaAtualizada.DataHora,
-        DateTimeKind.Utc
-        );
+        var dataHoraUtc = GarantirUtc(dto.DataHora);
+
         var consulta = await _context.Consultas.FindAsync(id);
 
         if (consulta == null)
             return NotFound("Consulta não encontrada.");
 
         var medicoExiste = await _context.Medicos
-            .AnyAsync(m => m.Id == consultaAtualizada.MedicoId);
+            .AnyAsync(m => m.Id == dto.MedicoId);
 
         if (!medicoExiste)
             return BadRequest("Médico informado não existe.");
 
         var pacienteExiste = await _context.Pacientes
-            .AnyAsync(p => p.Id == consultaAtualizada.PacienteId);
+            .AnyAsync(p => p.Id == dto.PacienteId);
 
         if (!pacienteExiste)
             return BadRequest("Paciente informado não existe.");
 
-        if (consultaAtualizada.DataHora < DateTime.UtcNow)
+        if (dataHoraUtc < DateTime.UtcNow)
             return BadRequest("Não é possível reagendar consulta para uma data no passado.");
 
         var medicoOcupado = await _context.Consultas.AnyAsync(c =>
             c.Id != id &&
-            c.MedicoId == consultaAtualizada.MedicoId &&
-            c.DataHora == consultaAtualizada.DataHora &&
+            c.MedicoId == dto.MedicoId &&
+            c.DataHora == dataHoraUtc &&
             c.Status == StatusConsulta.Agendada);
 
         if (medicoOcupado)
@@ -125,28 +215,26 @@ public class ConsultasController : ControllerBase
 
         var pacienteOcupado = await _context.Consultas.AnyAsync(c =>
             c.Id != id &&
-            c.PacienteId == consultaAtualizada.PacienteId &&
-            c.DataHora == consultaAtualizada.DataHora &&
+            c.PacienteId == dto.PacienteId &&
+            c.DataHora == dataHoraUtc &&
             c.Status == StatusConsulta.Agendada);
 
         if (pacienteOcupado)
             return BadRequest("O paciente já possui uma consulta agendada nesse horário.");
 
-        consulta.MedicoId = consultaAtualizada.MedicoId;
-        consulta.PacienteId = consultaAtualizada.PacienteId;
-        consulta.DataHora = consultaAtualizada.DataHora;
-        consulta.ModalidadeAtendimento = consultaAtualizada.ModalidadeAtendimento;
-        consulta.Descricao = consultaAtualizada.Descricao;
-        consulta.Status = consultaAtualizada.Status;
-        consulta.Diagnostico = consultaAtualizada.Diagnostico;
-        consulta.Prescricao = consultaAtualizada.Prescricao;
-        consulta.Exames = consultaAtualizada.Exames;
-        consulta.Observacoes = consultaAtualizada.Observacoes;
-        consulta.Valor = consultaAtualizada.Valor;
-        consulta.FormaPagamento = consultaAtualizada.FormaPagamento;
-        consulta.LocalAtendimento = consultaAtualizada.LocalAtendimento;
-        consulta.Feedback = consultaAtualizada.Feedback;
-        consulta.Avaliacao = consultaAtualizada.Avaliacao;
+        consulta.MedicoId = dto.MedicoId;
+        consulta.PacienteId = dto.PacienteId;
+        consulta.DataHora = dataHoraUtc;
+        consulta.ModalidadeAtendimento = dto.ModalidadeAtendimento;
+        consulta.Descricao = dto.Descricao ?? string.Empty;
+        consulta.Diagnostico = dto.Diagnostico ?? string.Empty;
+        consulta.Prescricao = dto.Prescricao ?? string.Empty;
+        consulta.Exames = dto.Exames ?? string.Empty;
+        consulta.Observacoes = dto.Observacoes ?? string.Empty;
+        consulta.FormaPagamento = dto.FormaPagamento ?? string.Empty;
+        consulta.LocalAtendimento = dto.LocalAtendimento ?? string.Empty;
+        consulta.Feedback = dto.Feedback ?? string.Empty;
+        consulta.Avaliacao = dto.Avaliacao;
         consulta.DataAtualizacao = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -210,5 +298,15 @@ public class ConsultasController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private static DateTime GarantirUtc(DateTime dataHora)
+    {
+        return dataHora.Kind switch
+        {
+            DateTimeKind.Utc => dataHora,
+            DateTimeKind.Local => dataHora.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(dataHora, DateTimeKind.Utc)
+        };
     }
 }
